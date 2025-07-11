@@ -6,6 +6,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
@@ -15,14 +17,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         // csrf = cross site request forgery
-        http.csrf(customizer -> customizer.disable()); // disable = to turn of the protection
-        http.authorizeHttpRequests(request -> request.anyRequest().authenticated());
+        return http.csrf(customizer -> customizer.disable()) // disable = to turn of the protection
+            .authorizeHttpRequests(request -> request.anyRequest()
+            .authenticated())
 
 //        http.formLogin(Customizer.withDefaults()); // for web login form
-        http.httpBasic(Customizer.withDefaults()); // for postman or for basic
+            .httpBasic(Customizer.withDefaults()) // for postman or for basic
 
         // make http stateless
-        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-        return http.build();
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .build();
+    }
+
+    @Bean
+    public UserDetailsService userDetailService() {
+        return new InMemoryUserDetailsManager()
     }
 }
